@@ -145,21 +145,18 @@ io.use(async (socket, next) => {
 });
 
 // ============================================
-// ROUTES
-// ============================================
-app.get('/health', (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Server is running',
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime()
-  });
-});
-app.use(express.static(path.join(__dirname, 'public')));
+
+    app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
+
+app.get('/health', (req, res) => {
+  res.json({ status: 'active' });
+});
+
+
 
 // API Routes
 app.use('/api/auth', require('./src/routes/auth'));
