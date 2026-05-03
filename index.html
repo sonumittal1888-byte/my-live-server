@@ -3,17 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Stream App</title>
+    <title>Live Stream & Leaderboard</title>
     <style>
-        body { margin: 0; background: #000; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; color: white; font-family: Arial; }
-        video { width: 90%; max-width: 500px; border: 2px solid #333; border-radius: 15px; background: #222; }
-        .btn { margin-top: 20px; background: #ff0000; color: white; padding: 15px 30px; border-radius: 30px; font-weight: bold; cursor: pointer; border: none; box-shadow: 0 4px 15px rgba(255,0,0,0.3); }
+        body { margin: 0; background: #121212; display: flex; flex-direction: column; align-items: center; min-height: 100vh; color: white; font-family: Arial; }
+        .video-container { width: 95%; max-width: 400px; margin-top: 10px; position: relative; }
+        video { width: 100%; border-radius: 15px; background: #000; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+        .leaderboard { width: 90%; max-width: 380px; background: rgba(255,255,255,0.1); margin-top: 20px; border-radius: 15px; padding: 15px; backdrop-filter: blur(10px); }
+        .leaderboard h3 { margin: 0 0 10px 0; color: #FFD700; text-align: center; }
+        .rank-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .gift-panel { display: flex; gap: 10px; margin-top: 15px; }
+        .gift-btn { background: #FF4444; border: none; color: white; padding: 10px; border-radius: 10px; cursor: pointer; flex: 1; font-weight: bold; }
+        .action-btn { background: #00C851; border: none; color: white; padding: 12px 30px; border-radius: 30px; margin-top: 15px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
-    <video id="video" autoplay playsinline></video>
-    <button class="btn" onclick="startStream()">START CAMERA</button>
-
+    <div class="video-container">
+        <video id="video" autoplay playsinline></video>
+    </div>
+    <button class="action-btn" onclick="startStream()">GO LIVE</button>
+    <div class="leaderboard">
+        <h3>🏆 TOP GIFTING</h3>
+        <div id="rankings">
+            <div class="rank-item"><span>1. Arif</span> <span>💎 500</span></div>
+            <div class="rank-item"><span>2. Narendra</span> <span>💎 350</span></div>
+            <div class="rank-item"><span>3. User_Guest</span> <span>💎 120</span></div>
+        </div>
+        <div class="gift-panel">
+            <button class="gift-btn" onclick="sendGift('🌹 Rose', 10)">🌹 Rose</button>
+            <button class="gift-btn" onclick="sendGift('🚗 Car', 100)">🚗 Car</button>
+            <button class="gift-btn" onclick="sendGift('👑 Crown', 500)">👑 Crown</button>
+        </div>
+    </div>
     <script>
         async function startStream() {
             try {
@@ -23,7 +43,9 @@
                 alert("Camera error: " + err.message);
             }
         }
+        function sendGift(name, price) {
+            alert(name + " bheja gaya! " + price + " coins deduct hue.");
+        }
     </script>
 </body>
 </html>
-
