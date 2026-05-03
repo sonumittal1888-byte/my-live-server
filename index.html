@@ -3,38 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Stream & Leaderboard</title>
+    <title>Live Stream Pro</title>
     <style>
         body { margin: 0; background: #121212; display: flex; flex-direction: column; align-items: center; min-height: 100vh; color: white; font-family: Arial; }
         .video-container { width: 95%; max-width: 400px; margin-top: 10px; position: relative; }
         video { width: 100%; border-radius: 15px; background: #000; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
         .leaderboard { width: 90%; max-width: 380px; background: rgba(255,255,255,0.1); margin-top: 20px; border-radius: 15px; padding: 15px; backdrop-filter: blur(10px); }
         .leaderboard h3 { margin: 0 0 10px 0; color: #FFD700; text-align: center; }
-        .rank-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .gift-panel { display: flex; gap: 10px; margin-top: 15px; }
-        .gift-btn { background: #FF4444; border: none; color: white; padding: 10px; border-radius: 10px; cursor: pointer; flex: 1; font-weight: bold; }
-        .action-btn { background: #00C851; border: none; color: white; padding: 12px 30px; border-radius: 30px; margin-top: 15px; font-weight: bold; cursor: pointer; }
+        .rank-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 18px; }
+        .gift-panel { display: flex; gap: 10px; margin-top: 20px; width: 90%; max-width: 380px; }
+        .gift-btn { background: linear-gradient(45deg, #FF4444, #CC0000); border: none; color: white; padding: 12px; border-radius: 12px; cursor: pointer; flex: 1; font-weight: bold; font-size: 14px; box-shadow: 0 4px 10px rgba(255,0,0,0.3); }
+        .action-btn { background: #00C851; border: none; color: white; padding: 12px 35px; border-radius: 30px; margin-top: 15px; font-weight: bold; cursor: pointer; font-size: 16px; }
+        .wallet { margin-top: 10px; color: #00E676; font-weight: bold; font-size: 20px; }
     </style>
 </head>
 <body>
+
     <div class="video-container">
         <video id="video" autoplay playsinline></video>
     </div>
+
     <button class="action-btn" onclick="startStream()">GO LIVE</button>
+
+    <div class="wallet">💰 My Coins: <span id="myCoins">1000</span></div>
+
     <div class="leaderboard">
         <h3>🏆 TOP GIFTING</h3>
         <div id="rankings">
-            <div class="rank-item"><span>1. Arif</span> <span>💎 500</span></div>
-            <div class="rank-item"><span>2. Narendra</span> <span>💎 350</span></div>
-            <div class="rank-item"><span>3. User_Guest</span> <span>💎 120</span></div>
-        </div>
-        <div class="gift-panel">
-            <button class="gift-btn" onclick="sendGift('🌹 Rose', 10)">🌹 Rose</button>
-            <button class="gift-btn" onclick="sendGift('🚗 Car', 100)">🚗 Car</button>
-            <button class="gift-btn" onclick="sendGift('👑 Crown', 500)">👑 Crown</button>
-        </div>
+            </div>
     </div>
+
+    <div class="gift-panel">
+        <button class="gift-btn" onclick="sendGift('🌹 Rose', 50)">🌹 Rose (50)</button>
+        <button class="gift-btn" onclick="sendGift('🚗 Car', 200)">🚗 Car (200)</button>
+        <button class="gift-btn" onclick="sendGift('👑 Crown', 500)">👑 Crown (500)</button>
+    </div>
+
     <script>
+        let coins = 1000;
+        let users = [
+            { name: "Arif", score: 500 },
+            { name: "Narendra", score: 350 },
+            { name: "You", score: 0 }
+        ];
+
+        function updateLeaderboard() {
+            const list = document.getElementById('rankings');
+            // Score ke hisaab se sort karna (Top wala upar)
+            users.sort((a, b) => b.score - a.score);
+            
+            list.innerHTML = '';
+            users.forEach((user, index) => {
+                list.innerHTML += `
+                    <div class="rank-item">
+                        <span>${index + 1}. ${user.name}</span>
+                        <span>💎 ${user.score}</span>
+                    </div>`;
+            });
+        }
+
         async function startStream() {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
@@ -43,9 +70,25 @@
                 alert("Camera error: " + err.message);
             }
         }
-        function sendGift(name, price) {
-            alert(name + " bheja gaya! " + price + " coins deduct hue.");
+
+        function sendGift(giftName, price) {
+            if (coins >= price) {
+                coins -= price;
+                document.getElementById('myCoins').innerText = coins;
+                
+                // "You" ka score badhana
+                let me = users.find(u => u.name === "You");
+                me.score += price;
+                
+                updateLeaderboard();
+                alert(giftName + " bheja gaya! Maza aa gaya.");
+            } else {
+                alert("Bhai, recharge karwao! Coins khatam ho gaye.");
+            }
         }
+
+        // Pehli baar list dikhane ke liye
+        updateLeaderboard();
     </script>
 </body>
 </html>
