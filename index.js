@@ -12,6 +12,7 @@ const Redis = require('ioredis');
 const winston = require('winston');
 const cron = require('node-cron');
 require('dotenv').config();
+const path = require('path');
 
 // ============================================
 // LOGGER SETUP
@@ -153,6 +154,11 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     uptime: process.uptime()
   });
+});
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // API Routes
