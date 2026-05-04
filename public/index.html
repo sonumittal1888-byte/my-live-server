@@ -604,7 +604,7 @@
                                 </div>
                             </div>
                             <div class="input-group">
-                                <label>Last Name</label>
+                                <label>Last Name</label> 
                                 <div class="input-wrapper">
                                     <i class="fas fa-user icon-left"></i>
                                     <input type="text" id="lastName" placeholder="Doe" required>
@@ -644,4 +644,85 @@
                         <button type="submit" class="btn" id="signupBtn">
                             <span class="btn-text">Create Account</span>
                             <div class="spinner"></div>
-                        </button>
+                        </button> 
+
+                                    </form>
+        </div>
+    </div>
+
+    <script>
+        // 1. Tab badalne ka logic (Sign In aur Sign Up ke liye)
+        function switchTab(tab) {
+            const loginForm = document.getElementById('loginForm');
+            const signupForm = document.getElementById('signupForm');
+            const tabSlider = document.getElementById('tabSlider');
+            const tabs = document.querySelectorAll('.tab');
+
+            if (tab === 'login') {
+                loginForm.classList.add('form-active');
+                loginForm.classList.remove('form-hidden');
+                signupForm.classList.add('form-hidden');
+                signupForm.classList.remove('form-active');
+                tabSlider.classList.remove('right');
+                tabs[0].classList.add('active');
+                tabs[1].classList.remove('active');
+            } else {
+                signupForm.classList.add('form-active');
+                signupForm.classList.remove('form-hidden');
+                loginForm.classList.add('form-hidden');
+                loginForm.classList.remove('form-active');
+                tabSlider.classList.add('right');
+                tabs[1].classList.add('active');
+                tabs[0].classList.remove('active');
+            }
+        }
+
+        // 2. Password aankh (Eye icon) toggle logic
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            // 'event' ka use karke icon icon dhoondhein
+            const icon = event.currentTarget; 
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = "password";
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+
+        // 3. Form submit hone par loading dikhana
+        function handleLogin(event) {
+            event.preventDefault();
+            const btn = document.getElementById('loginBtn');
+            btn.classList.add('btn-loading');
+            setTimeout(() => {
+                btn.classList.remove('btn-loading');
+                showToast('Login Successful!', 'success');
+            }, 2000);
+        }
+
+        function handleSignup(event) {
+            event.preventDefault();
+            const btn = document.getElementById('signupBtn');
+            btn.classList.add('btn-loading');
+            setTimeout(() => {
+                btn.classList.remove('btn-loading');
+                showToast('Welcome to StreamFlow!', 'success');
+            }, 2000);
+        }
+
+        // 4. Toast (Upar message) dikhane ke liye
+        function showToast(message, type) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            toastMsg.innerText = message;
+            toast.className = 'toast toast-show ' + (type === 'success' ? 'toast-success' : 'toast-error');
+            setTimeout(() => {
+                toast.classList.remove('toast-show');
+            }, 3000);
+        }
+    </script>
+</body>
+        </html>
+            
