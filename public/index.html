@@ -30,7 +30,6 @@
         @keyframes slideUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
         .input-group{margin-bottom:24px;}
         .input-group label{display:block;color:rgba(148,163,184,0.9);font-size:12px;font-weight:600;margin-bottom:10px;text-transform:uppercase;}
-        .input-wrapper{position:relative;}
         .input-wrapper input{width:100%;padding:16px 18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;color:white;outline:none;}
         .submit-btn{width:100%;padding:18px;background:linear-gradient(135deg,#3b82f6,#06b6d4,#8b5cf6);border:none;border-radius:16px;color:white;font-weight:700;cursor:pointer;transition:0.3s;}
         .submit-btn:disabled{opacity:0.6;cursor:not-allowed;}
@@ -38,7 +37,7 @@
         .divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.1);}
         .social-login{display:flex;gap:12px;}
         .social-btn{flex:1;padding:14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;}
-        .toast{position:fixed;top:24px;right:24px;padding:18px;background:#1e293b;border-radius:12px;color:white;transform:translateX(500px);transition:0.5s;z-index:1000;box-shadow: 0 10px 30px rgba(0,0,0,0.5);}
+        .toast{position:fixed;top:24px;right:24px;padding:18px;background:#1e293b;border-radius:12px;color:white;transform:translateX(500px);transition:0.5s;z-index:1000;}
         .toast.show{transform:translateX(0);}
         .form-footer{text-align:center;margin-top:28px;color:rgba(148,163,184,0.6);font-size:14px;}
         .form-footer a{color:#3b82f6;text-decoration:none;font-weight:700;}
@@ -60,14 +59,8 @@
 
         <div id="signin-form" class="form-container active">
             <form onsubmit="handleAuth(event, 'signin')">
-                <div class="input-group">
-                    <label>Email</label>
-                    <div class="input-wrapper"><input type="email" id="signin-email" placeholder="Enter email" required></div>
-                </div>
-                <div class="input-group">
-                    <label>Password</label>
-                    <div class="input-wrapper"><input type="password" id="signin-password" placeholder="Enter password" required></div>
-                </div>
+                <div class="input-group"><label>Email</label><div class="input-wrapper"><input type="email" id="signin-email" placeholder="Enter email" required></div></div>
+                <div class="input-group"><label>Password</label><div class="input-wrapper"><input type="password" id="signin-password" placeholder="Enter password" required></div></div>
                 <button type="submit" class="submit-btn" id="signin-btn">Sign In</button>
             </form>
             <div class="divider"><span>or continue with</span></div>
@@ -80,18 +73,9 @@
 
         <div id="signup-form" class="form-container">
             <form onsubmit="handleAuth(event, 'signup')">
-                <div class="input-group">
-                    <label>Full Name</label>
-                    <div class="input-wrapper"><input type="text" id="signup-name" placeholder="Full Name" required></div>
-                </div>
-                <div class="input-group">
-                    <label>Email</label>
-                    <div class="input-wrapper"><input type="email" id="signup-email" placeholder="Email" required></div>
-                </div>
-                <div class="input-group">
-                    <label>Password</label>
-                    <div class="input-wrapper"><input type="password" id="signup-password" placeholder="Password" required></div>
-                </div>
+                <div class="input-group"><label>Full Name</label><div class="input-wrapper"><input type="text" id="signup-name" placeholder="Full Name" required></div></div>
+                <div class="input-group"><label>Email</label><div class="input-wrapper"><input type="email" id="signup-email" placeholder="Email" required></div></div>
+                <div class="input-group"><label>Password</label><div class="input-wrapper"><input type="password" id="signup-password" placeholder="Password" required></div></div>
                 <button type="submit" class="submit-btn" id="signup-btn">Create Account</button>
             </form>
             <div class="form-footer">Already have an account? <a href="#" onclick="switchTab('signin')">Sign in</a></div>
@@ -104,28 +88,19 @@
         const API_URL = 'https://my-live-server-1.onrender.com';
 
         function switchTab(tab){
-            const signinForm = document.getElementById('signin-form');
-            const signupForm = document.getElementById('signup-form');
-            const signinBtn = document.getElementById('tab-signin');
-            const signupBtn = document.getElementById('tab-signup');
-
-            if(tab === 'signin'){
-                signinForm.classList.add('active');
-                signupForm.classList.remove('active');
-                signinBtn.classList.add('active');
-                signupBtn.classList.remove('active');
-            } else {
-                signupForm.classList.add('active');
-                signinForm.classList.remove('active');
-                signupBtn.classList.add('active');
-                signinBtn.classList.remove('active');
-            }
+            const forms = { signin: 'signin-form', signup: 'signup-form' };
+            const tabs = { signin: 'tab-signin', signup: 'tab-signup' };
+            
+            document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+            
+            document.getElementById(forms[tab]).classList.add('active');
+            document.getElementById(tabs[tab]).classList.add('active');
         }
 
         function showToast(msg, type='success'){
             const t = document.getElementById('toast');
-            const tm = document.getElementById('toast-message');
-            tm.textContent = msg;
+            document.getElementById('toast-message').textContent = msg;
             t.style.borderLeft = type === 'success' ? '4px solid #06b6d4' : '4px solid #ef4444';
             t.classList.add('show');
             setTimeout(() => t.classList.remove('show'), 3000);
@@ -137,14 +112,10 @@
             const btn = document.getElementById(isSignIn ? 'signin-btn' : 'signup-btn');
             const originalText = btn.innerText;
 
-            // Get Data
             const email = document.getElementById(isSignIn ? 'signin-email' : 'signup-email').value;
             const password = document.getElementById(isSignIn ? 'signin-password' : 'signup-password').value;
             const payload = { email, password };
-            
-            if(!isSignIn) {
-                payload.name = document.getElementById('signup-name').value;
-            }
+            if(!isSignIn) payload.name = document.getElementById('signup-name').value;
 
             btn.innerText = "Processing...";
             btn.disabled = true;
@@ -155,9 +126,7 @@
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(payload)
                 });
-                
                 const data = await response.json();
-
                 if(response.ok) {
                     showToast(isSignIn ? "Signed in successfully!" : "Account Created!", "success");
                     if(!isSignIn) setTimeout(() => switchTab('signin'), 1500);
@@ -172,9 +141,8 @@
             }
         }
 
-        function socialAuth(platform){
-            showToast(platform + " connection coming soon!", "success");
-        }
+        function socialAuth(platform){ showToast(platform + " connection coming soon!"); }
     </script>
 </body>
 </html>
+
