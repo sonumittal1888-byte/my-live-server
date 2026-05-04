@@ -1,62 +1,29 @@
 const express = require('express');
+const http = require('http');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const path = require('path');
+require('dotenv').config();
+
 const app = express();
+const server = http.createServer(app);
 
-app.use(express.json());
+// Middlewares
 app.use(cors());
+app.use(express.json());
 
-// Aapki HTML files 'public' folder mein hain, ye line unhe connect karti hai
-app.use(express.static(path.join(__dirname, 'public')));
+// MongoDB Connection
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log('✅ MongoDB Connected Ho Gaya!'))
+  .catch(err => console.log('❌ DB Error:', err));
 
-// --- DATABASE CONNECTION ---
-// Maine saksham123 password yahan daal diya hai
-const dbURI = "mongodb+srv://TaraJain:saksham123@testing.hkwgfv3.mongodb.net/?appName=Testing";
+// Routes
+app.use('/api/auth', require('./src/routes/auth'));
 
-mongoose.connect(dbURI)
-    .then(() => console.log("MongoDB Connected Successfully!"))
-    .catch(err => console.log("DB Connection Error: ", err));
-
-// User Data structure
-const User = mongoose.model('User', new mongoose.Schema({
-    name: String,
-    email: { type: String, unique: true, required: true },
-    password: { type: String, required: true }
-}));
-
-// Home page load karne ke liye
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.send('<h1>Live Streaming Server Running...</h1>');
 });
 
-// --- SIGN UP API (Naya account banane ke liye) ---
-app.post('/signup', async (req, res) => {
-    try {
-        const { name, email, password } = req.body;
-        const user = new User({ name, email, password });
-        await user.save();
-        res.status(201).send({ message: "Account Created!" });
-    } catch (e) {
-        res.status(400).send({ message: "Email already exists!" });
-    }
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`🚀 Server chalu hai port ${PORT} par`);
 });
-
-// --- SIGN IN API (Login karne ke liye) ---
-app.post('/signin', async (req, res) => {
-    try {
-        const { email, password } = req.body;
-        const user = await User.findOne({ email, password });
-        
-        if (user) {
-            res.status(200).send({ message: "Welcome back!", user: { name: user.name } });
-        } else {
-            res.status(401).send({ message: "Invalid email or password" });
-        }
-    } catch (e) {
-        res.status(500).send({ message: "Server Error" });
-    }
-});
-
-const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
