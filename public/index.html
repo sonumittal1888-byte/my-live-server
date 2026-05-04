@@ -129,7 +129,15 @@
                 const data = await response.json();
                 if(response.ok) {
                     showToast(isSignIn ? "Signed in successfully!" : "Account Created!", "success");
-                    if(!isSignIn) setTimeout(() => switchTab('signin'), 1500);
+                    
+                    // --- REDIRECT LOGIC ---
+                    if(isSignIn) {
+                        setTimeout(() => { 
+                            window.location.href = 'home.html'; 
+                        }, 1200);
+                    } else {
+                        setTimeout(() => switchTab('signin'), 1500);
+                    }
                 } else {
                     showToast(data.message || "Authentication failed", "error");
                 }
@@ -145,4 +153,3 @@
     </script>
 </body>
 </html>
-
