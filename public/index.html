@@ -1,42 +1,38 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const path = require('path');
-const app = express();
-
-app.use(express.json());
-app.use(cors());
-
-// Ye line server ko batayegi ki files 'public' folder mein hain
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Database Connection
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log("DB Connected Successfully"))
-  .catch(err => console.log("DB Connection Error:", err));
-
-const User = mongoose.model('User', new mongoose.Schema({
-  email: { type: String, unique: true },
-  password: String
-}));
-
-// Home page par seedha public folder wali index.html dikhao
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// Sign Up Route
-app.post('/signup', async (req, res) => {
-  try {
-    const user = new User(req.body);
-    await user.save();
-    res.status(201).send({ message: "Account Ban Gaya!" });
-  } catch (e) { 
-    res.status(400).send({ error: "Email pehle se hai ya details galat hain!" }); 
-  }
-});
-
-const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => {
-  console.log("Server is running on port " + PORT);
-});
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StreamFlow - Purple Portal</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { margin: 0; background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; font-family: sans-serif; color: white; }
+        .card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; padding: 40px; width: 350px; text-align: center; }
+        .logo { font-size: 40px; color: #6366f1; margin-bottom: 10px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; background: rgba(255,255,255,0.1); color: white; }
+        .btn { width: 100%; padding: 12px; background: #6366f1; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="logo"><i class="fas fa-broadcast-tower"></i></div>
+        <h2>StreamFlow</h2>
+        <input type="email" id="e" placeholder="Email Address">
+        <input type="password" id="p" placeholder="Password">
+        <button class="btn" onclick="send()">Sign Up</button>
+    </div>
+    <script>
+        async function send() {
+            const email = document.getElementById('e').value;
+            const password = document.getElementById('p').value;
+            const r = await fetch('/signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            const d = await r.json();
+            alert(d.message || d.error);
+        }
+    </script>
+</body>
+</html>
