@@ -17,26 +17,27 @@
         .particle:nth-child(3) { left: 35%; animation-delay: 4s; width: 25px; height: 25px; }
         .particle:nth-child(4) { left: 50%; animation-delay: 1s; width: 18px; height: 18px; }
         .particle:nth-child(5) { left: 65%; animation-delay: 3s; width: 22px; height: 22px; }
-        @keyframes float { 0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; } 10% { opacity: 1; } 100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; } }
+        @keyframes float { 0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; } }
         .container { position: relative; z-index: 1; width: 100%; max-width: 420px; padding: 20px; }
         .glass-card { background: var(--glass); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 24px; padding: 40px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); position: relative; overflow: hidden; }
         .logo { width: 60px; height: 60px; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 16px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 16px; box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3); }
         .logo i { font-size: 28px; color: white; }
         .brand { text-align: center; margin-bottom: 30px; }
-        .brand h1 { color: white; font-size: 28px; font-weight: 700; }
+        .brand h1 { color: white; font-size: 28px; font-weight: 700; margin-bottom: 8px; }
         .brand p { color: rgba(255, 255, 255, 0.6); font-size: 14px; }
         .tabs { display: flex; background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 4px; margin-bottom: 30px; position: relative; }
-        .tab { flex: 1; padding: 12px; text-align: center; color: rgba(255, 255, 255, 0.5); font-weight: 500; cursor: pointer; border: none; background: none; font-size: 14px; z-index: 2; }
+        .tab { flex: 1; padding: 12px; text-align: center; color: rgba(255, 255, 255, 0.5); font-weight: 500; cursor: pointer; border-radius: 10px; transition: all 0.3s ease; border: none; background: none; font-size: 14px; position: relative; z-index: 2; }
         .tab.active { color: white; }
-        .tab-slider { position: absolute; top: 4px; left: 4px; width: calc(50% - 4px); height: calc(100% - 8px); background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border-radius: 10px; transition: 0.3s; z-index: 1; }
+        .tab-slider { position: absolute; top: 4px; left: 4px; width: calc(50% - 4px); height: calc(100% - 8px); background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border-radius: 10px; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1; }
         .tab-slider.right { transform: translateX(100%); }
-        .input-group { margin-bottom: 20px; text-align: left; }
+        .input-group { margin-bottom: 20px; position: relative; text-align: left; }
         .input-wrapper { position: relative; }
-        .input-wrapper i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: rgba(255, 255, 255, 0.4); }
-        .input-wrapper input { width: 100%; padding: 14px 16px 14px 48px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; color: white; outline: none; }
+        .input-wrapper i.icon-left { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: rgba(255, 255, 255, 0.4); }
+        .input-wrapper input { width: 100%; padding: 14px 16px 14px 48px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; color: white; outline: none; transition: 0.3s; }
+        .input-wrapper input:focus { border-color: var(--primary); background: rgba(255, 255, 255, 0.08); }
         .btn { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border: none; border-radius: 12px; color: white; font-weight: 600; cursor: pointer; transition: 0.3s; }
         .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4); }
-        .toast { position: fixed; top: 20px; right: 20px; padding: 16px 24px; border-radius: 12px; color: white; transform: translateX(400px); transition: 0.4s; z-index: 1000; }
+        .toast { position: fixed; top: 20px; right: 20px; padding: 16px 24px; border-radius: 12px; color: white; transform: translateX(400px); transition: 0.4s; z-index: 1000; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3); }
         .toast.show { transform: translateX(0); }
         .toast.success { background: #10b981; }
         .toast.error { background: #ef4444; }
@@ -44,11 +45,8 @@
     </style>
 </head>
 <body>
-    <div class="particles">
-        <div class="particle"></div><div class="particle"></div><div class="particle"></div>
-    </div>
-
-    <div class="toast" id="toast"></div>
+    <div class="particles"><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div><div class="particle"></div></div>
+    <div class="toast" id="toast"><span id="toastMsg">Success!</span></div>
 
     <div class="container">
         <div class="glass-card">
@@ -57,33 +55,32 @@
                 <h1>StreamFlow</h1>
                 <p>Live streaming reimagined</p>
             </div>
-
             <div class="tabs">
                 <div class="tab-slider" id="tabSlider"></div>
-                <button class="tab active" id="loginTabBtn" onclick="switchTab('login')">Sign In</button>
-                <button class="tab" id="signupTabBtn" onclick="switchTab('signup')">Sign Up</button>
+                <button class="tab active" onclick="switchTab('login')">Sign In</button>
+                <button class="tab" onclick="switchTab('signup')">Sign Up</button>
             </div>
 
             <div id="loginForm">
                 <div class="input-group">
-                    <div class="input-wrapper"><i class="fas fa-envelope"></i>
-                    <input type="email" id="loginEmail" placeholder="Email Address"></div>
+                    <div class="input-wrapper"><i class="fas fa-envelope icon-left"></i>
+                    <input type="email" id="lEmail" placeholder="name@example.com"></div>
                 </div>
                 <div class="input-group">
-                    <div class="input-wrapper"><i class="fas fa-lock"></i>
-                    <input type="password" id="loginPassword" placeholder="Password"></div>
+                    <div class="input-wrapper"><i class="fas fa-lock icon-left"></i>
+                    <input type="password" id="lPass" placeholder="Enter your password"></div>
                 </div>
                 <button class="btn" onclick="handleAuth('login')">Sign In</button>
             </div>
 
             <div id="signupForm" class="hidden">
                 <div class="input-group">
-                    <div class="input-wrapper"><i class="fas fa-envelope"></i>
-                    <input type="email" id="signupEmail" placeholder="Email Address"></div>
+                    <div class="input-wrapper"><i class="fas fa-envelope icon-left"></i>
+                    <input type="email" id="sEmail" placeholder="name@example.com"></div>
                 </div>
                 <div class="input-group">
-                    <div class="input-wrapper"><i class="fas fa-lock"></i>
-                    <input type="password" id="signupPassword" placeholder="Create Password"></div>
+                    <div class="input-wrapper"><i class="fas fa-lock icon-left"></i>
+                    <input type="password" id="sPass" placeholder="Create a password"></div>
                 </div>
                 <button class="btn" onclick="handleAuth('signup')">Create Account</button>
             </div>
@@ -91,7 +88,7 @@
     </div>
 
     <script>
-        const API_BASE_URL = 'https://my-live-server-1.onrender.com';
+        const API_URL = 'https://my-live-server-1.onrender.com';
 
         function switchTab(type) {
             const slider = document.getElementById('tabSlider');
@@ -107,26 +104,25 @@
         }
 
         async function handleAuth(type) {
-            const email = document.getElementById(type + 'Email').value;
-            const password = document.getElementById(type + 'Password').value;
+            const email = document.getElementById(type === 'login' ? 'lEmail' : 'sEmail').value;
+            const password = document.getElementById(type === 'login' ? 'lPass' : 'sPass').value;
             const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
 
             try {
-                const res = await fetch(`${API_BASE_URL}/${type}`, {
+                const res = await fetch(`${API_URL}/${type}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password })
                 });
                 const data = await res.json();
-                
+                toastMsg.innerText = data.message || data.error;
                 toast.className = `toast show ${res.ok ? 'success' : 'error'}`;
-                toast.innerText = data.message || data.error;
                 setTimeout(() => toast.classList.remove('show'), 3000);
-            } catch (e) {
+            } catch (err) {
                 alert("Server Connection Error!");
             }
         }
     </script>
 </body>
 </html>
-
