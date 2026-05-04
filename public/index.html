@@ -1,65 +1,42 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StreamFlow - Login</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root { --primary: #6366f1; --secondary: #ec4899; }
-        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; color: white; }
-        .glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; padding: 40px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.5); }
-        .logo { width: 60px; height: 60px; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 16px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 20px; font-size: 28px; }
-        .tabs { display: flex; background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 4px; margin-bottom: 25px; }
-        .tab { flex: 1; padding: 10px; cursor: pointer; border: none; background: none; color: rgba(255,255,255,0.6); font-weight: 500; }
-        .tab.active { background: var(--primary); color: white; border-radius: 8px; }
-        input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: white; outline: none; }
-        .btn { width: 100%; padding: 14px; background: var(--primary); border: none; border-radius: 12px; color: white; font-weight: 600; cursor: pointer; }
-        .hidden { display: none; }
-    </style>
-</head>
-<body>
-    <div class="glass-card">
-        <div class="logo"><i class="fas fa-broadcast-tower"></i></div>
-        <h1>StreamFlow</h1>
-        <p style="margin-bottom: 20px; opacity: 0.6;">Live streaming reimagined</p>
-        <div class="tabs">
-            <button id="lTab" class="tab active" onclick="toggle('login')">Sign In</button>
-            <button id="sTab" class="tab" onclick="toggle('signup')">Sign Up</button>
-        </div>
-        <div id="loginForm">
-            <input type="email" id="le" placeholder="Email Address">
-            <input type="password" id="lp" placeholder="Password">
-            <button class="btn" onclick="send('login')">Sign In</button>
-        </div>
-        <div id="signupForm" class="hidden">
-            <input type="email" id="se" placeholder="Email Address">
-            <input type="password" id="sp" placeholder="Create Password">
-            <button class="btn" onclick="send('signup')">Create Account</button>
-        </div>
-    </div>
-    <script>
-        function toggle(t) {
-            document.getElementById('loginForm').classList.toggle('hidden', t === 'signup');
-            document.getElementById('signupForm').classList.toggle('hidden', t === 'login');
-            document.getElementById('lTab').classList.toggle('active', t === 'login');
-            document.getElementById('sTab').classList.toggle('active', t === 'signup');
-        }
-        async function send(t) {
-            const e = document.getElementById(t === 'login' ? 'le' : 'se').value;
-            const p = document.getElementById(t === 'login' ? 'lp' : 'sp').value;
-            try {
-                const r = await fetch(`/${t}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: e, password: p })
-                });
-                const d = await r.json();
-                alert(d.message || d.error);
-            } catch { alert("Server Error!"); }
-        }
-    </script>
-</body>
-</html>
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const path = require('path');
+const app = express();
+
+app.use(express.json());
+app.use(cors());
+
+// Ye line server ko batayegi ki files 'public' folder mein hain
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Database Connection
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log("DB Connected Successfully"))
+  .catch(err => console.log("DB Connection Error:", err));
+
+const User = mongoose.model('User', new mongoose.Schema({
+  email: { type: String, unique: true },
+  password: String
+}));
+
+// Home page par seedha public folder wali index.html dikhao
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Sign Up Route
+app.post('/signup', async (req, res) => {
+  try {
+    const user = new User(req.body);
+    await user.save();
+    res.status(201).send({ message: "Account Ban Gaya!" });
+  } catch (e) { 
+    res.status(400).send({ error: "Email pehle se hai ya details galat hain!" }); 
+  }
+});
+
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => {
+  console.log("Server is running on port " + PORT);
+});
