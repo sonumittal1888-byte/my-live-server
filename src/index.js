@@ -1,47 +1,63 @@
 const express = require('express');
-const mongoose = require('mongoose');
+const http = require('http');
+const { Server } = require('socket.io');
 const cors = require('cors');
-const path = require('path');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const compression = require('compression');
+const mongoSanitize = require('express-mongo-sanitize');
+const hpp = require('hpp');
+const mongoose = require('mongoose');
+const Redis = require('ioredis');
+const winston = require('winston');
+const cron = require('node-cron');
 require('dotenv').config();
 
+const logger = winston.createLogger({
+  level: process.env.LOG_LEVEL || 'info',
+  format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
+  transports: [new winston.transports.Console()]
+});
+
 const app = express();
-const port = process.env.PORT || 10000;
+const server = http.createServer(app);
 
-// VIP Settings (Middleware)
-app.use(cors());
-app.use(express.json());
-app.use(express.static(path.join(__dirname, '../public')));
+app.use(helmet());
+app.use(cors({ origin: '*', credentials: true }));
+app.use(compression());
+app.use(express.json({ limit: '10mb' }));
+app.use(mongoSanitize());
+app.use(hpp());
 
-// Database Connection
-mongoose.connect(process.env.MONGODB_URI)
-.then(() => console.log("VIP Database Connected! ✅"))
-.catch(err => console.log("DB Connection Error: ❌", err));
-
-// Routes (Login/Signup check)
-app.post('/signup', async (req, res) => {
-    try {
-        console.log("Signup Request Received:", req.body);
-        res.status(201).json({ message: "User created successfully (VIP)" });
-    } catch (err) {
-        res.status(500).json({ message: "Signup Error" });
-    }
+const redis = new Redis({
+  host: process.env.REDIS_HOST || 'localhost',
+  port: parseInt(process.env.REDIS_PORT) || 6379,
+  password: process.env.REDIS_PASSWORD || undefined
 });
 
-app.post('/signin', async (req, res) => {
-    try {
-        console.log("Signin Request Received:", req.body);
-        res.status(200).json({ message: "Login Successful (VIP)" });
-    } catch (err) {
-        res.status(500).json({ message: "Signin Error" });
-    }
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGODB_URI);
+    logger.info('✅ MongoDB Connected (saksham123)');
+  } catch (error) {
+    logger.error('❌ MongoDB Error:', error);
+    process.exit(1);
+  }
+};
+connectDB();
+
+const io = new Server(server, {
+  cors: { origin: "*", methods: ['GET', 'POST'] }
 });
 
-// Display Home Page
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/index.html'));
+app.get('/health', (req, res) => {
+  res.status(200).json({ success: true, message: 'Server is Live! 🚀' });
 });
 
-// Start Server
-app.listen(port, () => {
-    console.log(`Server is running on port ${port} 🚀`);
+// Yahan aapke routes aayenge (auth, users, gifts etc.)
+app.use('/api/auth', (req, res) => res.send('Auth Route Working'));
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  logger.info(`🚀 Server running on port ${PORT}`);
 });
