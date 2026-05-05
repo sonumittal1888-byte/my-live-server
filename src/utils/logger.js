@@ -1,7 +1,15 @@
-const logger = {
-  info: (msg) => console.log(`[INFO] ${msg}`),
-  error: (msg, err) => console.error(`[ERROR] ${msg}`, err || ''),
-  warn: (msg) => console.warn(`[WARN] ${msg}`)
-};
+const winston = require('winston');
+
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.json()
+  ),
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.File({ filename: 'error.log', level: 'error' })
+  ],
+});
 
 module.exports = logger;
