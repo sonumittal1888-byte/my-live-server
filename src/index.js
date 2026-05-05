@@ -40,8 +40,16 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/liveapp')
   .then(() => logger.info('MongoDB Connected...'))
   .catch(err => logger.error('Mongo Error:', err));
 
-const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
-redis.on('connect', () => logger.info('Redis Connected...'));
+// REDIS CONNECTION (Safe handling ke sath taaki server crash na ho)
+const redis = new Redis(process.env.REDIS_URL || 'redis://127.0.0.1:6379');
+
+redis.on('error', (err) => {
+  logger.error('Redis Connection Error Ignored:', err.message);
+});
+
+redis.on('connect', () => {
+  logger.info('Redis Connected...');
+});
 
 // ============================================
 // SOCKET.IO SETUP (For Live Streaming & Gifting)
@@ -69,6 +77,15 @@ io.on('connection', (socket) => {
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/agora', agoraRoutes); // 👈 Agora Route Register Kiya
 
+// 1. DEFAULT ROUTE (Ab main link open karte hi yeh chalega)
+app.get('/', (req, res) => {
+  res.status(200).json({ 
+    success: true, 
+    message: 'Agora Token Server is running successfully!' 
+  });
+});
+
+// 2. HEALTH CHECK ROUTE
 app.get('/health', (req, res) => {
   res.status(200).json({ success: true, message: 'Advance Server is Healthy' });
 });
