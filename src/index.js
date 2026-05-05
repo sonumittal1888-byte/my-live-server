@@ -2,30 +2,80 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
+const helmet = require('helmet');
 const mongoose = require('mongoose');
 const Redis = require('ioredis');
 const winston = require('winston');
 require('dotenv').config();
 
-// Routes Import
-const authRoutes = require('./routes/auth'); // Humne ise theek kar diya hai
+// ============================================
+// ROUTES IMPORT
+// ============================================
+const authRoutes = require('./routes/auth');
 
 const app = express();
 const server = http.createServer(app);
 
-// Middleware
+// ============================================
+// ADVANCE SECURITY & MIDDLEWARE
+// ============================================
+app.use(helmet()); 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 
-// Main Route
+// ============================================
+// LOGGER SETUP (For Tracking)
+// ============================================
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
+  transports: [new winston.transports.Console()]
+});
+
+// ============================================
+// DATABASE CONNECTIONS
+// ============================================
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/liveapp')
+  .then(() => logger.info('MongoDB Connected...'))
+  .catch(err => logger.error('Mongo Error:', err));
+
+const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
+redis.on('connect', () => logger.info('Redis Connected...'));
+
+// ============================================
+// SOCKET.IO SETUP (For Live Streaming & Gifting)
+// ============================================
+const io = new Server(server, {
+  cors: { origin: "*", methods: ["GET", "POST"] }
+});
+
+io.on('connection', (socket) => {
+  logger.info(`New Connection: ${socket.id}`);
+  
+  // Gift bhejne ka logic
+  socket.on('sendGift', (data) => {
+    io.emit('receiveGift', data); // Sabko dikhao kisne kya gift bheja
+  });
+
+  socket.on('disconnect', () => {
+    logger.info('User Disconnected');
+  });
+});
+
+// ============================================
+// MOUNT ROUTES
+// ============================================
 app.use('/api/v1/auth', authRoutes);
 
-// Health Check
 app.get('/health', (req, res) => {
-  res.status(200).json({ success: true, message: 'Server is running' });
+  res.status(200).json({ success: true, message: 'Advance Server is Healthy' });
 });
 
+// ============================================
+// START SERVER
+// ============================================
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  logger.info(`🚀 Advance Server running on port ${PORT}`);
 });
+
