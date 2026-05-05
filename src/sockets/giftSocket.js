@@ -63,19 +63,25 @@ module.exports = (io, redis) => {
             quantity, totalPrice, platformFee, receiverEarnings, category: gift.category, roomId
           }], { session });
           
+          // 1. Room Redis Leaderboard update
           await redis.zincrby(getLeaderboardKey(roomId), totalPrice, senderId);
+
+          // 2. Daily Global Redis Leaderboard update
+          await redis.zincrby(getDailyLeaderboardKey(), totalPrice, senderId);
+
+          // 3. Weekly Global Redis Leaderboard update
+          await redis.zincrby(getWeeklyLeaderboardKey(), totalPrice, senderId);
           
-          // ==========================================
-          // 👉 ADDED: Leaderboard namespace emit trigger
-          // ==========================================
-          io.of('/leaderboard').emit('gift:processed', {
-            senderId: senderId,
-            receiverId: receiverId,
-            receiverType: 'host',
-            giftValue: totalPrice,
-            diamonds: totalPrice,
-          });
-          // ==========================================
+          // 4. Leaderboard namespace emit trigger (Safe Check ke sath)
+          if (io && typeof io.of === 'function') {
+            io.of('/leaderboard').emit('gift:processed', {
+              senderId: senderId,
+              receiverId: receiverId,
+              receiverType: 'host',
+              giftValue: totalPrice,
+              diamonds: totalPrice,
+            });
+          }
 
           const giftData = { gift, sender: { id: senderId, name: sender.username }, receiver: { id: receiverId }, quantity, totalPrice };
           io.to(roomId).emit('new_gift', giftData);
