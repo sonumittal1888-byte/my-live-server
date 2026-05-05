@@ -62,7 +62,21 @@ module.exports = (io, redis) => {
             senderId, receiverId, giftId: gift.id, giftName: gift.name, giftPrice: gift.price,
             quantity, totalPrice, platformFee, receiverEarnings, category: gift.category, roomId
           }], { session });
+          
           await redis.zincrby(getLeaderboardKey(roomId), totalPrice, senderId);
+          
+          // ==========================================
+          // 👉 ADDED: Leaderboard namespace emit trigger
+          // ==========================================
+          io.of('/leaderboard').emit('gift:processed', {
+            senderId: senderId,
+            receiverId: receiverId,
+            receiverType: 'host',
+            giftValue: totalPrice,
+            diamonds: totalPrice,
+          });
+          // ==========================================
+
           const giftData = { gift, sender: { id: senderId, name: sender.username }, receiver: { id: receiverId }, quantity, totalPrice };
           io.to(roomId).emit('new_gift', giftData);
           callback({ success: true, remainingCoins: sender.coins });
@@ -75,4 +89,3 @@ module.exports = (io, redis) => {
     });
   });
 };
-
