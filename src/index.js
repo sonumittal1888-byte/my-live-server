@@ -12,6 +12,7 @@ require('dotenv').config();
 // ROUTES IMPORT
 // ============================================
 const authRoutes = require('./routes/auth');
+const agoraRoutes = require('./routes/agoraRoutes'); // 👈 Agora Route Import Kiya
 
 const app = express();
 const server = http.createServer(app);
@@ -66,6 +67,7 @@ io.on('connection', (socket) => {
 // MOUNT ROUTES
 // ============================================
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/agora', agoraRoutes); // 👈 Agora Route Register Kiya
 
 app.get('/health', (req, res) => {
   res.status(200).json({ success: true, message: 'Advance Server is Healthy' });
@@ -78,4 +80,3 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   logger.info(`🚀 Advance Server running on port ${PORT}`);
 });
-
