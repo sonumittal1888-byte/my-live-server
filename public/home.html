@@ -1,70 +1,321 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StreamFlow - Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: #0a0a0f; color: white; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-        
-        .dashboard-card {
-            background: rgba(20, 20, 30, 0.6);
-            backdrop-filter: blur(40px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 32px;
-            padding: 48px;
-            width: 90%;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StreamFlow - Premium Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Segoe+UI:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: #0a0a0f; color: white; height: 100vh; overflow: hidden; }
 
-        h1 { font-size: 28px; margin-bottom: 10px; background: linear-gradient(135deg, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        p { color: rgba(148, 163, 184, 0.8); margin-bottom: 30px; }
+  /* ========================================================
+     1. DASHBOARD CARD STYLE (Pehle ye dikhega)
+     ======================================================== */
+  #dashboard-view {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100vh;
+      position: relative;
+      z-index: 10;
+  }
+  
+  .dashboard-card {
+      background: rgba(20, 20, 30, 0.6);
+      backdrop-filter: blur(40px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 32px;
+      padding: 48px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);
+  }
 
-        .stats-container {
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 30px;
-            border: 1px solid rgba(59, 130, 246, 0.2);
-        }
+  h1 { font-size: 28px; margin-bottom: 10px; background: linear-gradient(135deg, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  p { color: rgba(148, 163, 184, 0.8); margin-bottom: 30px; }
 
-        .coin-value { font-size: 32px; font-weight: 800; color: #fbbf24; display: block; }
-        .coin-label { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: rgba(148, 163, 184, 0.6); }
+  .stats-container {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 30px;
+      border: 1px solid rgba(59, 130, 246, 0.2);
+  }
 
-        .go-live-btn {
-            width: 100%;
-            padding: 18px;
-            background: linear-gradient(135deg, #3b82f6, #06b6d4);
-            border: none;
-            border-radius: 16px;
-            color: white;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.3s;
-        }
+  .coin-value { font-size: 32px; font-weight: 800; color: #fbbf24; display: block; }
+  .coin-label { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: rgba(148, 163, 184, 0.6); }
 
-        .go-live-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(59, 130, 246, 0.4); }
-    </style>
+  .go-live-btn {
+      width: 100%;
+      padding: 18px;
+      background: linear-gradient(135deg, #3b82f6, #06b6d4);
+      border: none;
+      border-radius: 16px;
+      color: white;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.3s;
+  }
+  .go-live-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(59, 130, 246, 0.4); }
+
+  /* ========================================================
+     2. VIP STREAM VIEW STYLE (Pehle chhupa rahega)
+     ======================================================== */
+  #stream-view {
+      display: none;
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      background: #070501;
+  }
+
+  .stream-container { position: relative; width: 100%; height: 100vh; background: linear-gradient(135deg, #120d03, #050301); display: flex; flex-direction: column; justify-content: space-between; border: 4px solid #ffd700; box-shadow: inset 0 0 40px rgba(255, 215, 0, 0.3); }
+  
+  .video-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=1000') no-repeat center center; background-size: cover; z-index: 1; filter: brightness(0.6) contrast(1.2) sepia(0.2); }
+  .video-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(7,5,1,1) 15%, rgba(0,0,0,0.2) 70%, rgba(0,0,0,0.5) 100%); z-index: 2; }
+
+  .top-bar { position: relative; z-index: 3; display: flex; justify-content: space-between; align-items: center; padding: 15px; }
+  .host-profile { display: flex; align-items: center; background: rgba(0,0,0,0.85); padding: 8px 15px; border-radius: 30px; border: 2px solid #ffd700; backdrop-filter: blur(8px); box-shadow: 0 0 20px rgba(255,215,0,0.4); }
+  .host-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #ffd700; margin-right: 8px; box-shadow: 0 0 10px #ffd700; }
+  .host-details h4 { font-size: 13px; color: #fff; display: flex; align-items: center; font-weight: 800; letter-spacing: 0.5px; text-shadow: 0 0 5px rgba(255,215,0,0.5); }
+  .host-details h4 span { color: #000; background: #ffd700; margin-left: 6px; font-size: 10px; font-weight: 900; padding: 2px 6px; border-radius: 10px; box-shadow: 0 0 5px #ffd700; }
+  .host-details p { font-size: 10px; color: #00ffcc; font-weight: bold; margin-top: 2px; }
+  
+  .follow-btn { background: linear-gradient(45deg, #ffd700, #ffaa00); border: none; color: #000; padding: 6px 14px; border-radius: 15px; font-size: 11px; font-weight: 900; margin-left: 10px; cursor: pointer; animation: pulse 1.5s infinite; box-shadow: 0 0 15px rgba(255,215,0,0.6); text-transform: uppercase; }
+  
+  .live-stats { display: flex; gap: 8px; align-items: center; }
+  .live-badge { background: #ffd700; color: #000; padding: 5px 12px; border-radius: 12px; font-size: 10px; font-weight: 900; letter-spacing: 1px; box-shadow: 0 0 15px #ffd700; }
+  .viewer-count { background: rgba(0,0,0,0.85); padding: 5px 12px; border-radius: 12px; font-size: 11px; backdrop-filter: blur(5px); font-weight: bold; border: 1.5px solid #ffd700; color: #ffd700; box-shadow: 0 0 10px rgba(255,215,0,0.2); }
+
+  #gift-animation-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 4; pointer-events: none; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+  .gift-blast-active { animation: giftSplash 1.8s ease-out forwards; }
+
+  .chat-section { position: relative; z-index: 3; padding: 15px; display: flex; flex-direction: column; max-height: 40vh; margin-top: auto; }
+  .chat-messages { height: 160px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; scroll-behavior: smooth; }
+  
+  .chat-messages::-webkit-scrollbar { width: 4px; }
+  .chat-messages::-webkit-scrollbar-thumb { background: #ffd700; border-radius: 10px; }
+
+  .chat-bubble { background: rgba(10, 8, 3, 0.85); backdrop-filter: blur(10px); padding: 10px 14px; border-radius: 14px; font-size: 12.5px; line-height: 1.4; border: 1px solid rgba(255,215,0,0.15); border-left: 3px solid #ffd700; animation: fadeInUp 0.3s ease; max-width: 90%; }
+  .chat-bubble.vip-user { border-left: 4px solid #ffd700; background: rgba(255, 215, 0, 0.08); background-image: linear-gradient(90deg, rgba(255,215,0,0.15), rgba(0,0,0,0)); box-shadow: inset 0 0 10px rgba(255,215,0,0.2); border: 1.5px solid rgba(255,215,0,0.4); }
+  .chat-user { font-weight: bold; margin-right: 5px; }
+  .user-gold { color: #ffd700; display: inline-flex; align-items: center; text-shadow: 0 0 8px rgba(255,215,0,0.6); }
+  .user-pink { color: #ff55aa; }
+  .user-blue { color: #00e5ff; }
+
+  .action-row { display: flex; gap: 10px; align-items: center; position: relative; z-index: 3; }
+  .input-container { flex: 1; display: flex; background: rgba(0,0,0,0.85); border-radius: 25px; padding: 6px 16px; border: 1.5px solid #ffd700; backdrop-filter: blur(10px); box-shadow: 0 0 15px rgba(255,215,0,0.15); }
+  .chat-input { flex: 1; background: transparent; border: none; outline: none; color: #fff; font-size: 13px; padding: 6px 0; }
+  .chat-input::placeholder { color: #999; }
+  
+  .send-btn { background: none; border: none; color: #ffd700; font-weight: bold; font-size: 14px; cursor: pointer; padding: 0 8px; text-shadow: 0 0 5px rgba(255,215,0,0.5); }
+
+  .gift-icon-btn { width: 48px; height: 48px; background: linear-gradient(135deg, #ffd700, #ffaa00); border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; box-shadow: 0 0 25px rgba(255,215,0,0.6); animation: pulseFloat 2s infinite; border: 2px solid #fff; }
+
+  .gift-drawer { display: none; position: absolute; bottom: 75px; right: 15px; background: rgba(5, 3, 1, 0.98); border: 2.5px solid #ffd700; border-radius: 18px; padding: 15px; width: 280px; z-index: 5; box-shadow: 0 10px 35px rgba(0,0,0,0.95); backdrop-filter: blur(20px); }
+  .gift-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; text-align: center; }
+  .gift-card { background: rgba(255,215,0,0.03); border: 1px solid rgba(255,215,0,0.1); border-radius: 12px; padding: 10px; cursor: pointer; transition: 0.2s; }
+  .gift-card:hover { background: rgba(255,215,0,0.2); border-color: #ffd700; transform: scale(1.05); box-shadow: 0 0 15px rgba(255,215,0,0.4); }
+  .gift-card span { font-size: 32px; display: block; margin-bottom: 6px; filter: drop-shadow(0 0 8px rgba(255,215,0,0.5)); }
+  .gift-card p { font-size: 10px; color: #ffd700; font-weight: bold; text-shadow: 0 0 3px rgba(255,215,0,0.3); }
+  .gift-card h5 { font-size: 11px; margin-bottom: 2px; color: #fff; font-weight: bold; }
+
+  /* Animations */
+  @keyframes pulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,215,0,0.8); }
+    70% { transform: scale(1.05); box-shadow: 0 0 0 12px rgba(255,215,0,0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,215,0,0); }
+  }
+  @keyframes pulseFloat {
+    0% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-6px) scale(1.05); }
+    100% { transform: translateY(0) scale(1); }
+  }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes giftSplash {
+    0% { opacity: 0; transform: scale(0.3) rotate(-15deg); filter: drop-shadow(0 0 0px #ffd700); }
+    50% { opacity: 1; transform: scale(1.3) rotate(5deg); filter: drop-shadow(0 0 50px #ffd700); }
+    80% { opacity: 1; transform: scale(1) rotate(0); }
+    100% { opacity: 0; transform: scale(0.8) translateY(-120px); }
+  }
+</style>
 </head>
 <body>
 
-    <div class="dashboard-card">
-        <h1>Welcome Back! 🚀</h1>
-        <p>Aapka StreamFlow account active hai.</p>
-        
-        <div class="stats-container">
-            <span class="coin-value">🪙 100</span>
-            <span class="coin-label">Available Balance</span>
-        </div>
+  <div id="dashboard-view">
+      <div class="dashboard-card">
+          <h1>Welcome Back! 🚀</h1>
+          <p>Aapka StreamFlow account active hai.</p>
+          
+          <div class="stats-container">
+              <span class="coin-value">🪙 100</span>
+              <span class="coin-label">Available Balance</span>
+          </div>
 
-        <button class="go-live-btn" onclick="alert('Starting Camera... Camera logic coming next!')">Start Live Stream</button>
-    </div>
+          <button class="go-live-btn" onclick="startStreamNow()">Start Live Stream</button>
+      </div>
+  </div>
 
+  <div id="stream-view">
+      <div class="stream-container">
+          <div class="video-bg"></div>
+          <div class="video-overlay"></div>
+
+          <div class="top-bar">
+              <div class="host-profile">
+                  <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200" class="host-avatar" alt="Host">
+                  <div class="host-details">
+                      <h4>VIP GOLDEN QUEEN 👑 <span>LV.99</span></h4>
+                      <p>⭐ 9.8M Stars</p>
+                  </div>
+                  <button class="follow-btn" onclick="followHost()">+ Follow</button>
+              </div>
+
+              <div class="live-stats">
+                  <div class="live-badge">GOLD LIVE</div>
+                  <div class="viewer-count" id="live-users">👀 12.4K</div>
+              </div>
+          </div>
+
+          <div id="gift-animation-screen"></div>
+
+          <div class="chat-section">
+              <div class="chat-messages" id="chat-box">
+                  <div class="chat-bubble"><span class="chat-user user-blue">Rajesh Kumar:</span> Hello, gold look is epic! 😍</div>
+                  <div class="chat-bubble vip-user"><span class="chat-user user-gold">👑 VIP_Sahib_Rao:</span> Best luxury UI ever! 🔥🙌</div>
+                  <div class="chat-bubble"><span class="chat-user user-pink">Priya_Sharma:</span> Gifting gold crowns only! 💎</div>
+              </div>
+
+              <div class="action-row">
+                  <div class="input-container">
+                      <input type="text" id="user-msg" class="chat-input" placeholder="Say something royal..." onkeypress="handleKeyPress(event)">
+                      <button class="send-btn" onclick="sendMessage()">Send</button>
+                  </div>
+                  <button class="gift-icon-btn" onclick="toggleGiftDrawer()">🎁</button>
+              </div>
+
+              <div class="gift-drawer" id="gift-box-drawer">
+                  <div class="gift-grid">
+                      <div class="gift-card" onclick="sendPremiumGift('VIP Crown', '👑', '500 Stars')">
+                          <span>👑</span>
+                          <h5>VIP Crown</h5>
+                          <p>500 ⭐</p>
+                      </div>
+                      <div class="gift-card" onclick="sendPremiumGift('Sports Car', '🏎️', '1000 Stars')">
+                          <span>🏎️</span>
+                          <h5>Super Car</h5>
+                          <p>1000 ⭐</p>
+                      </div>
+                      <div class="gift-card" onclick="sendPremiumGift('VIP Love', '❤️', '100 Stars')">
+                          <span>❤️</span>
+                          <h5>Love Blast</h5>
+                          <p>100 ⭐</p>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+
+<script>
+  // Function to switch view from Dashboard to VIP Live Screen
+  function startStreamNow() {
+      document.getElementById('dashboard-view').style.display = 'none';
+      document.getElementById('stream-view').style.display = 'block';
+  }
+
+  // Live Stream Logic (Chat, viewer counter & gift blast)
+  const names = ["Rohan_Jat", "Amit_Kaithal", "Sharma_Ji", "Arif_Bhai", "Narendra_Yadav", "Ninja_FF", "Angel_Sneha", "Karan_Verma"];
+  const texts = ["Super stream bro! 🔥", "Arif bhai big fan!", "Kya mast gold design hai! 😍", "Gifting you VIP crown right now", "Haryana aala chora! 💪", "OP gold styling!", "Mind blowing animations! 🚀"];
+  
+  setInterval(() => {
+    const isVip = Math.random() > 0.5;
+    const randomName = names[Math.floor(Math.random() * names.length)];
+    const randomText = texts[Math.floor(Math.random() * texts.length)];
+    addChatBubble(randomName, randomText, isVip);
+  }, 3200);
+
+  setInterval(() => {
+    const randomVal = (12.4 + (Math.random() * 0.4 - 0.2)).toFixed(1);
+    document.getElementById('live-users').innerHTML = `👀 ${randomVal}K`;
+  }, 4000);
+
+  function addChatBubble(user, text, isVip = false) {
+    const chatBox = document.getElementById('chat-box');
+    const bubble = document.createElement('div');
+    
+    if (isVip) {
+      bubble.className = "chat-bubble vip-user";
+      bubble.innerHTML = `<span class="chat-user user-gold">👑 VIP_${user}:</span> ${text}`;
+    } else {
+      bubble.className = "chat-bubble";
+      const colors = ["user-blue", "user-pink"];
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+      bubble.innerHTML = `<span class="chat-user ${randomColor}">${user}:</span> ${text}`;
+    }
+    
+    chatBox.appendChild(bubble);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  function sendMessage() {
+    const input = document.getElementById('user-msg');
+    const message = input.value.trim();
+    if(message !== "") {
+      addChatBubble("Rao_Sahab_Mittal", message, true);
+      input.value = "";
+    }
+  }
+
+  function handleKeyPress(event) {
+    if (event.key === "Enter") {
+      sendMessage();
+    }
+  }
+
+  function toggleGiftDrawer() {
+    const drawer = document.getElementById('gift-box-drawer');
+    drawer.style.display = drawer.style.display === "block" ? "none" : "block";
+  }
+
+  function followHost() {
+    const btn = document.querySelector('.follow-btn');
+    btn.innerHTML = "✓ Following";
+    btn.style.background = "rgba(255,215,0,0.15)";
+    btn.style.color = "#ffd700";
+    btn.style.border = "1.5px solid #ffd700";
+    btn.style.animation = "none";
+    btn.style.boxShadow = "none";
+  }
+
+  function sendPremiumGift(giftName, giftIcon, cost) {
+    document.getElementById('gift-box-drawer').style.display = "none";
+    addChatBubble("Rao_Sahab_Mittal", `sent ${giftIcon} [${giftName}] to Host! 🥳🎉`, true);
+
+    const screenAnim = document.getElementById('gift-animation-screen');
+    const blastDiv = document.createElement('div');
+    
+    blastDiv.style.textAlign = 'center';
+    blastDiv.innerHTML = `
+      <div style="font-size: 100px; filter: drop-shadow(0 0 35px #ffd700);">${giftIcon}</div>
+      <h2 style="color: #ffd700; font-size: 28px; text-shadow: 0 0 20px gold; font-weight: 900; margin-top: 10px; letter-spacing: 1.5px;">${giftName.toUpperCase()} BLAST!</h2>
+      <p style="color: #000; font-size: 14px; background: #ffd700; border: 2px solid #fff; padding: 6px 20px; border-radius: 20px; margin-top: 8px; font-weight: 900; box-shadow: 0 0 15px gold;">Rao Sahab Gifted ${cost}!</p>
+    `;
+    
+    blastDiv.className = "gift-blast-active";
+    screenAnim.appendChild(blastDiv);
+
+    setTimeout(() => {
+      blastDiv.remove();
+    }, 1800);
+  }
+</script>
 </body>
 </html>
-
