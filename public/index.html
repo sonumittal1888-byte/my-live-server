@@ -160,9 +160,10 @@
     </div>
 
     <script>
+        // Secure backend render server link
         const API_URL = "https://my-live-server-1.onrender.com";
 
-        // Drag/Scroll ko prevent karne ke liye script
+        // Touch drag lock script
         document.addEventListener('touchmove', function(e) {
             if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
                 e.preventDefault();
@@ -201,7 +202,10 @@
             try {
                 const res = await fetch(`${API_URL}/signup`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
                     body: JSON.stringify(userData)
                 });
                 const data = await res.json();
@@ -212,7 +216,8 @@
                     showToast(data.message || "Error", "error");
                 }
             } catch (err) {
-                showToast("Server not responding", "error");
+                console.error("SignUp Connection Error:", err);
+                showToast("Server Connection Failed", "error");
             } finally { btn.classList.remove('loading'); }
         }
 
@@ -229,7 +234,10 @@
             try {
                 const res = await fetch(`${API_URL}/signin`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
                     body: JSON.stringify(loginData)
                 });
                 const data = await res.json();
@@ -242,9 +250,11 @@
                     showToast(data.message || "Invalid Details", "error");
                 }
             } catch (err) {
+                console.error("SignIn Connection Error:", err);
                 showToast("Server Connection Failed", "error");
             } finally { btn.classList.remove('loading'); }
         }
     </script>
 </body>
 </html>
+
