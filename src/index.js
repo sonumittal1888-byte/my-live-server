@@ -18,11 +18,26 @@ const app = express();
 const server = http.createServer(app);
 
 // ============================================
-// ADVANCE SECURITY & MIDDLEWARE
+// ADVANCE SECURITY & MIDDLEWARE (CORS & CSP FIXED)
 // ============================================
-app.use(helmet()); 
-app.use(cors());
+// Helmet ko config kiya taaki connection block na ho
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginResourcePolicy: false,
+})); 
+
+// CORS ko poori tarah open kiya taaki app login request bypass ho sake
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  credentials: true
+}));
+
 app.use(express.json({ limit: '10mb' }));
+
+// Pre-flight requests ko bypass karne ke liye
+app.options('*', cors());
 
 // ============================================
 // LOGGER SETUP (For Tracking)
@@ -55,7 +70,10 @@ redis.on('connect', () => {
 // SOCKET.IO SETUP (For Live Streaming & Gifting)
 // ============================================
 const io = new Server(server, {
-  cors: { origin: "*", methods: ["GET", "POST"] }
+  cors: { 
+    origin: "*", 
+    methods: ["GET", "POST"] 
+  }
 });
 
 io.on('connection', (socket) => {
@@ -90,10 +108,16 @@ app.get('/health', (req, res) => {
   res.status(200).json({ success: true, message: 'Advance Server is Healthy' });
 });
 
+// Global Error Handler
+app.use((err, req, res, next) => {
+  logger.error(err.stack);
+  res.status(500).json({ success: false, message: "Internal Server Error" });
+});
+
 // ============================================
 // START SERVER
 // ============================================
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000; // Render automatic port setup handle kar lega
 server.listen(PORT, () => {
   logger.info(`🚀 Advance Server running on port ${PORT}`);
 });
