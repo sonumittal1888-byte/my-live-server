@@ -40,8 +40,8 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/liveapp')
   .then(() => logger.info('MongoDB Connected...'))
   .catch(err => logger.error('Mongo Error:', err));
 
-// REDIS CONNECTION (Safe handling ke sath taaki server crash na ho)
-const redis = new Redis(process.env.REDIS_URL || 'redis://127.0.0.1:6379');
+// REDIS CONNECTION (Render ke live Redis url ke sath update kiya gaya)
+const redis = new Redis(process.env.REDIS_URL || 'redis://red-cuq0m0l6l4sc73epeskg:6379');
 
 redis.on('error', (err) => {
   logger.error('Redis Connection Error Ignored:', err.message);
