@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -149,8 +148,10 @@
                 const data = await res.json();
                 if (res.ok) {
                     showToast("Login Successful!", "success");
-                    // Dashboard par bhejne ke liye niche wali line uncomment karein
-                    // window.location.href = "dashboard.html";
+                    // Dynamic automatic redirect to home.html set kar diya hai:
+                    setTimeout(() => {
+                        window.location.href = "home.html";
+                    }, 1000);
                 } else {
                     showToast(data.message || "Invalid Details", "error");
                 }
