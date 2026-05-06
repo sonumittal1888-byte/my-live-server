@@ -2,43 +2,123 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>StreamFlow - Sign In</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        body { min-height: 100vh; display: flex; justify-content: center; align-items: center; background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); overflow: hidden; position: relative; }
-        body::before { content: ''; position: absolute; width: 400px; height: 400px; background: linear-gradient(45deg, #7c3aed, #a855f7); border-radius: 50%; top: -100px; left: -100px; filter: blur(80px); opacity: 0.6; animation: float 6s ease-in-out infinite; }
-        body::after { content: ''; position: absolute; width: 350px; height: 350px; background: linear-gradient(45deg, #ec4899, #8b5cf6); border-radius: 50%; bottom: -100px; right: -100px; filter: blur(80px); opacity: 0.5; animation: float 8s ease-in-out infinite reverse; }
-        @keyframes float { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(30px, -30px) scale(1.1); } }
-        .glass-card { position: relative; width: 420px; padding: 40px 35px; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3); z-index: 10; }
-        .logo { text-align: center; margin-bottom: 30px; }
-        .logo i { font-size: 48px; color: #a855f7; margin-bottom: 10px; display: block; }
-        .logo h1 { color: #fff; font-size: 28px; font-weight: 700; letter-spacing: 1px; }
-        .logo p { color: rgba(255, 255, 255, 0.6); font-size: 13px; margin-top: 5px; }
-        .tabs { display: flex; margin-bottom: 30px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 5px; border: 1px solid rgba(255, 255, 255, 0.08); }
-        .tab-btn { flex: 1; padding: 12px; border: none; background: transparent; color: rgba(255, 255, 255, 0.5); font-size: 14px; font-weight: 500; cursor: pointer; border-radius: 10px; transition: 0.3s; }
-        .tab-btn.active { background: linear-gradient(135deg, #7c3aed, #a855f7); color: #fff; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4); }
-        .form { display: none; animation: fadeIn 0.4s ease; }
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: 'Poppins', sans-serif; 
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: none; /* App scroll lock */
+        }
+        
+        html, body { 
+            width: 100%;
+            height: 100%;
+            max-height: 100vh;
+            overflow: hidden !important; 
+            position: fixed !important;  
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); 
+            overscroll-behavior: none !important; 
+        }
+
+        body { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 20px;
+        }
+
+        input, button, a {
+            touch-action: auto !important;
+        }
+
+        body::before { 
+            content: ''; 
+            position: absolute; 
+            width: 300px; 
+            height: 300px; 
+            background: linear-gradient(45deg, #7c3aed, #a855f7); 
+            border-radius: 50%; 
+            top: -50px; 
+            left: -50px; 
+            filter: blur(80px); 
+            opacity: 0.5; 
+            z-index: 1;
+        }
+        body::after { 
+            content: ''; 
+            position: absolute; 
+            width: 250px; 
+            height: 250px; 
+            background: linear-gradient(45deg, #ec4899, #8b5cf6); 
+            border-radius: 50%; 
+            bottom: -50px; 
+            right: -50px; 
+            filter: blur(80px); 
+            opacity: 0.4; 
+            z-index: 1;
+        }
+
+        .glass-card { 
+            position: relative; 
+            width: 100%;
+            max-width: 380px; 
+            padding: 30px 24px; 
+            background: rgba(255, 255, 255, 0.04); 
+            backdrop-filter: blur(25px); 
+            -webkit-backdrop-filter: blur(25px); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            border-radius: 28px; 
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4); 
+            z-index: 10; 
+            text-align: center;
+        }
+
+        .logo { margin-bottom: 24px; }
+        .logo i { font-size: 42px; color: #a855f7; margin-bottom: 8px; display: block; filter: drop-shadow(0 0 10px rgba(168,85,247,0.4)); }
+        .logo h1 { color: #fff; font-size: 26px; font-weight: 700; letter-spacing: 0.5px; }
+        .logo p { color: rgba(255, 255, 255, 0.5); font-size: 12px; margin-top: 4px; }
+
+        .tabs { display: flex; margin-bottom: 24px; background: rgba(255, 255, 255, 0.04); border-radius: 14px; padding: 4px; border: 1px solid rgba(255, 255, 255, 0.06); }
+        .tab-btn { flex: 1; padding: 10px; border: none; background: transparent; color: rgba(255, 255, 255, 0.5); font-size: 13.5px; font-weight: 600; cursor: pointer; border-radius: 11px; transition: 0.25s ease; }
+        .tab-btn.active { background: linear-gradient(135deg, #7c3aed, #a855f7); color: #fff; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.35); }
+
+        .form { display: none; animation: fadeIn 0.3s ease; }
         .form.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .input-group { position: relative; margin-bottom: 22px; }
-        .input-group i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: rgba(168, 85, 247, 0.8); }
-        .input-group input { width: 100%; padding: 14px 14px 14px 48px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; color: #fff; outline: none; }
-        .options { display: flex; justify-content: space-between; margin-bottom: 25px; font-size: 13px; color: #fff; }
-        .submit-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #7c3aed, #a855f7); border: none; border-radius: 12px; color: #fff; font-weight: 600; cursor: pointer; transition: 0.3s; }
-        .divider { display: flex; align-items: center; margin: 25px 0; color: rgba(255, 255, 255, 0.4); font-size: 12px; }
-        .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: rgba(255, 255, 255, 0.1); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        .input-group { position: relative; margin-bottom: 16px; text-align: left; }
+        .input-group i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: rgba(168, 85, 247, 0.9); font-size: 16px; }
+        .input-group input { width: 100%; padding: 13px 14px 13px 46px; background: rgba(255, 255, 255, 0.05); border: 1.5px solid rgba(255, 255, 255, 0.08); border-radius: 14px; color: #fff; outline: none; font-size: 14px; transition: 0.2s; }
+        .input-group input:focus { border-color: #a855f7; background: rgba(255, 255, 255, 0.08); box-shadow: 0 0 10px rgba(168, 85, 247, 0.2); }
+
+        .submit-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #7c3aed, #a855f7); border: none; border-radius: 14px; color: #fff; font-weight: 600; font-size: 15px; cursor: pointer; transition: 0.25s; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3); }
+        .submit-btn:active { transform: scale(0.98); }
+
+        .divider { display: flex; align-items: center; margin: 20px 0; color: rgba(255, 255, 255, 0.3); font-size: 11px; font-weight: 600; }
+        .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: rgba(255, 255, 255, 0.08); }
+        .divider span { padding: 0 10px; }
+
         .social-login { display: flex; gap: 12px; justify-content: center; }
-        .social-btn { flex: 1; padding: 10px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; color: #fff; cursor: pointer; }
-        .footer-text { text-align: center; margin-top: 25px; color: rgba(255, 255, 255, 0.5); font-size: 13px; }
-        .footer-text a { color: #a855f7; cursor: pointer; text-decoration: none; }
-        .toast { position: fixed; top: 20px; right: 20px; padding: 16px 24px; border-radius: 12px; color: #fff; transform: translateX(150%); transition: 0.4s; z-index: 1000; }
-        .toast.show { transform: translateX(0); }
+        .social-btn { flex: 1; padding: 10px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; color: #fff; cursor: pointer; font-size: 16px; transition: 0.2s; }
+        .social-btn:active { background: rgba(255, 255, 255, 0.08); }
+
+        .footer-text { margin-top: 20px; color: rgba(255, 255, 255, 0.45); font-size: 12.5px; }
+        .footer-text a { color: #a855f7; cursor: pointer; text-decoration: none; font-weight: 600; }
+
+        .toast { position: fixed; top: 16px; left: 50%; transform: translate(-50%, -150%); padding: 12px 20px; border-radius: 12px; color: #fff; font-size: 13px; font-weight: 600; transition: 0.3s ease; z-index: 1000; text-align: center; width: 90%; max-width: 320px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+        .toast.show { transform: translate(-50%, 0); }
         .toast.success { background: #22c55e; }
         .toast.error { background: #ef4444; }
-        .spinner { display: none; width: 18px; height: 18px; border: 2px solid #fff; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; margin-left: 10px; }
+
+        .spinner { display: none; width: 16px; height: 16px; border: 2px solid #fff; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; margin-left: 8px; vertical-align: middle; }
         @keyframes spin { to { transform: rotate(360deg); } }
         .loading .spinner { display: inline-block; }
     </style>
@@ -56,14 +136,14 @@
 
         <div class="form-container">
             <form id="signin-form" class="form active" onsubmit="handleSignIn(event)">
-                <div class="input-group"> <input type="email" id="signin-email" placeholder="Email" required> <i class="fas fa-envelope"></i> </div>
+                <div class="input-group"> <input type="email" id="signin-email" placeholder="Email" required autocomplete="off"> <i class="fas fa-envelope"></i> </div>
                 <div class="input-group"> <input type="password" id="signin-password" placeholder="Password" required> <i class="fas fa-lock"></i> </div>
                 <button type="submit" class="submit-btn" id="signin-btn">Sign In <div class="spinner"></div></button>
             </form>
 
             <form id="signup-form" class="form" onsubmit="handleSignUp(event)">
-                <div class="input-group"> <input type="text" id="signup-name" placeholder="Full Name" required> <i class="fas fa-user"></i> </div>
-                <div class="input-group"> <input type="email" id="signup-email" placeholder="Email" required> <i class="fas fa-envelope"></i> </div>
+                <div class="input-group"> <input type="text" id="signup-name" placeholder="Full Name" required autocomplete="off"> <i class="fas fa-user"></i> </div>
+                <div class="input-group"> <input type="email" id="signup-email" placeholder="Email" required autocomplete="off"> <i class="fas fa-envelope"></i> </div>
                 <div class="input-group"> <input type="password" id="signup-password" placeholder="Password" required> <i class="fas fa-lock"></i> </div>
                 <button type="submit" class="submit-btn" id="signup-btn">Sign Up <div class="spinner"></div></button>
             </form>
@@ -82,6 +162,13 @@
     <script>
         const API_URL = "https://my-live-server-1.onrender.com";
 
+        // Drag/Scroll ko prevent karne ke liye script
+        document.addEventListener('touchmove', function(e) {
+            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
         function switchTab(tab) {
             const isSignin = tab === 'signin';
             document.getElementById('signin-form').classList.toggle('active', isSignin);
@@ -97,7 +184,7 @@
             const t = document.getElementById('toast');
             document.getElementById('toast-message').innerText = msg;
             t.className = `toast ${type} show`;
-            setTimeout(() => t.classList.remove('show'), 3000);
+            setTimeout(() => t.classList.remove('show'), 2500);
         }
 
         async function handleSignUp(e) {
@@ -148,7 +235,6 @@
                 const data = await res.json();
                 if (res.ok) {
                     showToast("Login Successful!", "success");
-                    // Dynamic automatic redirect to home.html set kar diya hai:
                     setTimeout(() => {
                         window.location.href = "home.html";
                     }, 1000);
