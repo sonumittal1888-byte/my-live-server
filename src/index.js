@@ -9,11 +9,12 @@ const winston = require('winston');
 require('dotenv').config();
 
 // ============================================
-// ROUTES IMPORT
+// ROUTES & CONTROLLERS IMPORT
 // ============================================
 const authRoutes = require('./routes/auth');
-const agoraRoutes = require('./routes/agoraRoutes'); // Agora Route Import Kiya
-const paymentRoutes = require('./routes/payments'); // 👈 PhonePe Route Import Kiya
+const agoraRoutes = require('./routes/agoraRoutes');
+const paymentRoutes = require('./routes/payments');
+const { processPKGift } = require('./controllers/pkengine'); // 👈 PK Scoring Engine Import Kiya
 
 const app = express();
 const server = http.createServer(app);
@@ -21,13 +22,11 @@ const server = http.createServer(app);
 // ============================================
 // ADVANCE SECURITY & MIDDLEWARE (CORS & CSP FIXED)
 // ============================================
-// Helmet ko config kiya taaki connection block na ho
 app.use(helmet({
   contentSecurityPolicy: false,
   crossOriginResourcePolicy: false,
 })); 
 
-// CORS ko poori tarah open kiya taaki app login request bypass ho sake
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -36,8 +35,6 @@ app.use(cors({
 }));
 
 app.use(express.json({ limit: '10mb' }));
-
-// Pre-flight requests ko bypass karne ke liye
 app.options('*', cors());
 
 // ============================================
@@ -56,7 +53,6 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/liveapp')
   .then(() => logger.info('MongoDB Connected...'))
   .catch(err => logger.error('Mongo Error:', err));
 
-// REDIS CONNECTION (Render ke live Redis url ke sath update kiya gaya)
 const redis = new Redis(process.env.REDIS_URL || 'redis://red-cuq0m0l6l4sc73epeskg:6379');
 
 redis.on('error', (err) => {
@@ -68,7 +64,7 @@ redis.on('connect', () => {
 });
 
 // ============================================
-// SOCKET.IO SETUP (For Live Streaming & Gifting)
+// SOCKET.IO SETUP (Real-time Gifting & PK Battles)
 // ============================================
 const io = new Server(server, {
   cors: { 
@@ -80,9 +76,15 @@ const io = new Server(server, {
 io.on('connection', (socket) => {
   logger.info(`New Connection: ${socket.id}`);
   
-  // Gift bhejne ka logic
+  // Normal Room Gifting & PK Scoring Connection
   socket.on('sendGift', (data) => {
-    io.emit('receiveGift', data); // Sabko dikhao kisne kya gift bheja
+    // 1. Sabhi normal users ko update bhejte hain
+    io.emit('receiveGift', data); 
+    
+    // 2. Agar gift PK Battle room ke andar bheja gaya hai, toh points calculate karenge
+    if (data.isPKBattle && data.roomId) {
+      processPKGift(io, data.roomId, data);
+    }
   });
 
   socket.on('disconnect', () => {
@@ -94,20 +96,19 @@ io.on('connection', (socket) => {
 // MOUNT ROUTES
 // ============================================
 app.use('/api/v1/auth', authRoutes);
-app.use('/api/agora', agoraRoutes); // Agora Route Register Kiya
-app.use('/api/payments', paymentRoutes); // 👈 PhonePe Route Register Kiya
+app.use('/api/agora', agoraRoutes);
+app.use('/api/payments', paymentRoutes);
 
-// 1. DEFAULT ROUTE (Ab main link open karte hi yeh chalega)
+// DEFAULT ROUTES
 app.get('/', (req, res) => {
   res.status(200).json({ 
     success: true, 
-    message: 'Agora Token Server is running successfully!' 
+    message: 'StreamFlow Advance Token & Payment Server is running successfully!' 
   });
 });
 
-// 2. HEALTH CHECK ROUTE
 app.get('/health', (req, res) => {
-  res.status(200).json({ success: true, message: 'Advance Server is Healthy' });
+  res.status(200).json({ success: true, message: 'Server is Healthy' });
 });
 
 // Global Error Handler
@@ -119,7 +120,7 @@ app.use((err, req, res, next) => {
 // ============================================
 // START SERVER
 // ============================================
-const PORT = process.env.PORT || 5000; // Render automatic port setup handle kar lega
+const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   logger.info(`🚀 Advance Server running on port ${PORT}`);
 });
