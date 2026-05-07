@@ -12,7 +12,8 @@ require('dotenv').config();
 // ROUTES IMPORT
 // ============================================
 const authRoutes = require('./routes/auth');
-const agoraRoutes = require('./routes/agoraRoutes'); // 👈 Agora Route Import Kiya
+const agoraRoutes = require('./routes/agoraRoutes'); // Agora Route Import Kiya
+const paymentRoutes = require('./routes/payments'); // 👈 PhonePe Route Import Kiya
 
 const app = express();
 const server = http.createServer(app);
@@ -93,7 +94,8 @@ io.on('connection', (socket) => {
 // MOUNT ROUTES
 // ============================================
 app.use('/api/v1/auth', authRoutes);
-app.use('/api/agora', agoraRoutes); // 👈 Agora Route Register Kiya
+app.use('/api/agora', agoraRoutes); // Agora Route Register Kiya
+app.use('/api/payments', paymentRoutes); // 👈 PhonePe Route Register Kiya
 
 // 1. DEFAULT ROUTE (Ab main link open karte hi yeh chalega)
 app.get('/', (req, res) => {
