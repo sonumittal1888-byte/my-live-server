@@ -142,7 +142,7 @@
   @keyframes giftSplash {
     0% { opacity: 0; transform: scale(0.3) rotate(-15deg); filter: drop-shadow(0 0 0px #ffd700); }
     50% { opacity: 1; transform: scale(1.3) rotate(5deg); filter: drop-shadow(0 0 50px #ffd700); }
-    80% { opacity: 1; transform: scale(1) rotate(0); }
+    80% { opacity: 1; transform: scale(1); rotate(0); }
     100% { opacity: 0; transform: scale(0.8) translateY(-120px); }
   }
 </style>
@@ -188,10 +188,7 @@
 
           <div class="chat-section">
               <div class="chat-messages" id="chat-box">
-                  <div class="chat-bubble"><span class="chat-user user-blue">Rajesh Kumar:</span> Hello, gold look is epic! 😍</div>
-                  <div class="chat-bubble vip-user"><span class="chat-user user-gold">👑 VIP_Sahib_Rao:</span> Best luxury UI ever! 🔥🙌</div>
-                  <div class="chat-bubble"><span class="chat-user user-pink">Priya_Sharma:</span> Gifting gold crowns only! 💎</div>
-              </div>
+                  </div>
 
               <div class="action-row">
                   <div class="input-container">
@@ -224,34 +221,81 @@
       </div>
   </div>
 
-<script>
-  // Function to switch view from Dashboard to VIP Live Screen
-  function startStreamNow() {
-      document.getElementById('dashboard-view').style.display = 'none';
-      document.getElementById('stream-view').style.display = 'block';
-  }
+<script type="module">
+  // 1. Firebase SDKs को इम्पोर्ट करें
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
+  import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, limit, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js";
 
-  // Live Stream Logic (Chat, viewer counter & gift blast)
-  const names = ["Rohan_Jat", "Amit_Kaithal", "Sharma_Ji", "Arif_Bhai", "Narendra_Yadav", "Ninja_FF", "Angel_Sneha", "Karan_Verma"];
-  const texts = ["Super stream bro! 🔥", "Arif bhai big fan!", "Kya mast gold design hai! 😍", "Gifting you VIP crown right now", "Haryana aala chora! 💪", "OP gold styling!", "Mind blowing animations! 🚀"];
-  
-  setInterval(() => {
-    const isVip = Math.random() > 0.5;
-    const randomName = names[Math.floor(Math.random() * names.length)];
-    const randomText = texts[Math.floor(Math.random() * texts.length)];
-    addChatBubble(randomName, randomText, isVip);
-  }, 3200);
+  // 2. आपका Firebase कॉन्फ़िगरेशन (जो हमने अभी सेट किया है)
+  const firebaseConfig = {
+    apiKey: "AIzaSyCHqAzxijRFjLHJp6_hDEGdoUTcPhsv9zo",
+    authDomain: "streamflow-f5ac8.firebaseapp.com",
+    projectId: "streamflow-f5ac8",
+    storageBucket: "streamflow-f5ac8.firebasestorage.app",
+    messagingSenderId: "644624573383",
+    appId: "1:644624573383:web:0c2a4ebe5cf2314772afe2",
+    measurementId: "G-SYXFHB3G2X"
+  };
 
+  // 3. Firebase और Firestore को चालू करें
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // HTML एलिमेंट्स को कनेक्ट करें
+  const chatBox = document.getElementById('chat-box');
+  const userMsgInput = document.getElementById('user-msg');
+
+  // व्यूअर काउंटर को रैंडमली अपडेट करने का लॉजिक
   setInterval(() => {
     const randomVal = (12.4 + (Math.random() * 0.4 - 0.2)).toFixed(1);
-    document.getElementById('live-users').innerHTML = `👀 ${randomVal}K`;
+    const liveUsersEl = document.getElementById('live-users');
+    if (liveUsersEl) {
+      liveUsersEl.innerHTML = `👀 ${randomVal}K`;
+    }
   }, 4000);
 
-  function addChatBubble(user, text, isVip = false) {
-    const chatBox = document.getElementById('chat-box');
+  // फ़ॉलो बटन का लॉजिक
+  window.followHost = function() {
+    const btn = document.querySelector('.follow-btn');
+    if (btn) {
+      btn.innerHTML = "✓ Following";
+      btn.style.background = "rgba(255,215,0,0.15)";
+      btn.style.color = "#ffd700";
+      btn.style.border = "1.5px solid #ffd700";
+      btn.style.animation = "none";
+      btn.style.boxShadow = "none";
+    }
+  }
+
+  // गिफ्ट ड्रॉअर खोलने/बंद करने का लॉजिक
+  window.toggleGiftDrawer = function() {
+    const drawer = document.getElementById('gift-box-drawer');
+    if (drawer) {
+      drawer.style.display = drawer.style.display === "block" ? "none" : "block";
+    }
+  }
+
+  // व्यू स्विच करने का लॉजिक
+  window.startStreamNow = function() {
+      const dbView = document.getElementById('dashboard-view');
+      const stView = document.getElementById('stream-view');
+      if (dbView && stView) {
+        dbView.style.display = 'none';
+        stView.style.display = 'block';
+      }
+  }
+
+  // चैट बबल स्क्रीन पर दिखाने का फंक्शन
+  function renderBubble(user, text, isVip = false, isGift = false) {
+    if (!chatBox) return;
     const bubble = document.createElement('div');
     
-    if (isVip) {
+    if (isGift) {
+      bubble.className = "chat-bubble vip-user";
+      bubble.style.borderLeft = "4px solid #ffd700";
+      bubble.style.backgroundImage = "linear-gradient(90deg, rgba(255,215,0,0.15), rgba(0,0,0,0))";
+      bubble.innerHTML = `<span class="chat-user user-gold">👑 VIP_${user}:</span> ${text}`;
+    } else if (isVip) {
       bubble.className = "chat-bubble vip-user";
       bubble.innerHTML = `<span class="chat-user user-gold">👑 VIP_${user}:</span> ${text}`;
     } else {
@@ -265,48 +309,64 @@
     chatBox.scrollTop = chatBox.scrollHeight;
   }
 
-  function sendMessage() {
-    const input = document.getElementById('user-msg');
-    const message = input.value.trim();
+  // 4. Firestore में टेक्स्ट मैसेज भेजने का फंक्शन
+  window.sendMessage = async function() {
+    if (!userMsgInput) return;
+    const message = userMsgInput.value.trim();
     if(message !== "") {
-      addChatBubble("Rao_Sahab_Mittal", message, true);
-      input.value = "";
+      try {
+        await addDoc(collection(db, "chats"), {
+          username: "Rao_Sahab_Mittal",
+          text: message,
+          type: "text",
+          isVip: true,
+          timestamp: serverTimestamp()
+        });
+        userMsgInput.value = "";
+      } catch (e) {
+        console.error("Error writing document: ", e);
+      }
     }
   }
 
-  function handleKeyPress(event) {
+  // Enter की दबाने पर मैसेज सेंड करें
+  window.handleKeyPress = function(event) {
     if (event.key === "Enter") {
       sendMessage();
     }
   }
 
-  function toggleGiftDrawer() {
+  // 5. Firestore में प्रीमियम गिफ्ट भेजने का फंक्शन
+  window.sendPremiumGift = async function(giftName, giftIcon, cost) {
     const drawer = document.getElementById('gift-box-drawer');
-    drawer.style.display = drawer.style.display === "block" ? "none" : "block";
+    if (drawer) drawer.style.display = "none";
+    try {
+      await addDoc(collection(db, "chats"), {
+        username: "Rao_Sahab_Mittal",
+        text: `sent ${giftIcon} [${giftName}] to Host! 🥳🎉`,
+        giftEmoji: giftIcon,
+        giftName: giftName,
+        giftCost: cost,
+        type: "gift",
+        isVip: true,
+        timestamp: serverTimestamp()
+      });
+    } catch (e) {
+      console.error("Error sending gift: ", e);
+    }
   }
 
-  function followHost() {
-    const btn = document.querySelector('.follow-btn');
-    btn.innerHTML = "✓ Following";
-    btn.style.background = "rgba(255,215,0,0.15)";
-    btn.style.color = "#ffd700";
-    btn.style.border = "1.5px solid #ffd700";
-    btn.style.animation = "none";
-    btn.style.boxShadow = "none";
-  }
-
-  function sendPremiumGift(giftName, giftIcon, cost) {
-    document.getElementById('gift-box-drawer').style.display = "none";
-    addChatBubble("Rao_Sahab_Mittal", `sent ${giftIcon} [${giftName}] to Host! 🥳🎉`, true);
-
+  // बड़ी स्क्रीन पर गिफ्ट ब्लास्ट एनीमेशन चलाने का फंक्शन
+  function triggerGiftBlast(sender, giftIcon, giftName, cost) {
     const screenAnim = document.getElementById('gift-animation-screen');
+    if (!screenAnim) return;
     const blastDiv = document.createElement('div');
     
     blastDiv.style.textAlign = 'center';
     blastDiv.innerHTML = `
       <div style="font-size: 100px; filter: drop-shadow(0 0 35px #ffd700);">${giftIcon}</div>
       <h2 style="color: #ffd700; font-size: 28px; text-shadow: 0 0 20px gold; font-weight: 900; margin-top: 10px; letter-spacing: 1.5px;">${giftName.toUpperCase()} BLAST!</h2>
-      <p style="color: #000; font-size: 14px; background: #ffd700; border: 2px solid #fff; padding: 6px 20px; border-radius: 20px; margin-top: 8px; font-weight: 900; box-shadow: 0 0 15px gold;">Rao Sahab Gifted ${cost}!</p>
+      <p style="color: #000; font-size: 14px; background: #ffd700; border: 2px solid #fff; padding: 6px 20px; border-radius: 20px; margin-top: 8px; font-weight: 900; box-shadow: 0 0 15px gold;">${sender} Gifted ${cost}!</p>
     `;
     
     blastDiv.className = "gift-blast-active";
@@ -316,6 +376,29 @@
       blastDiv.remove();
     }, 1800);
   }
+
+  // 6. Firestore से रीयल-टाइम डेटा रिसीव करना (Listen)
+  const q = query(collection(db, "chats"), orderBy("timestamp", "asc"), limit(40));
+  onSnapshot(q, (snapshot) => {
+    if (chatBox) chatBox.innerHTML = ''; // पुराना चैट साफ़ करें
+    
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+      const isGift = data.type === "gift";
+      
+      // स्क्रीन पर चैट बबल दिखाएँ
+      renderBubble(data.username, data.text, data.isVip, isGift);
+      
+      // अगर नया गिफ्ट आया है तो एनीमेशन चलाएं (पिछले 4 सेकंड के अंदर का होना चाहिए)
+      if (isGift) {
+        const now = Date.now();
+        const msgTime = data.timestamp ? data.timestamp.toDate().getTime() : now;
+        if (now - msgTime < 4000) {
+          triggerGiftBlast(data.username, data.giftEmoji, data.giftName, data.giftCost);
+        }
+      }
+    });
+  });
 </script>
 </body>
 </html>
